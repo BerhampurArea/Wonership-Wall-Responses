@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wall of Pride | What Ownership Means to Me</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Hind:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#0f3cc9;--ink:#14213d;--gold:#f2b705;--paper:#f5f7ff;--line:#cfd8f5}
+*{box-sizing:border-box}
+body{margin:0;font-family:Hind,system-ui,sans-serif;color:var(--ink);background:var(--paper)}
+header{background:var(--blue);color:#fff;padding:28px 24px;display:flex;flex-wrap:wrap;gap:12px 32px;align-items:flex-end;justify-content:space-between}
+h1{font-family:Fraunces,Georgia,serif;font-weight:800;font-size:clamp(30px,5vw,52px);line-height:1.05;margin:0}
+h1 small{display:block;font-family:Hind,sans-serif;font-weight:500;font-size:clamp(15px,2vw,20px);opacity:.85;margin-bottom:6px}
+.stat{font-family:Fraunces,serif;font-size:clamp(28px,4vw,44px);font-weight:800;color:var(--gold);text-align:right;line-height:1}
+.stat span{display:block;font-family:Hind,sans-serif;font-size:14px;font-weight:500;color:#fff;opacity:.85}
+#board{columns:300px;column-gap:18px;padding:24px}
+.card{break-inside:avoid;background:#fff;border:1px solid var(--line);border-left:6px solid var(--blue);border-radius:6px;padding:18px 20px;margin:0 0 18px}
+.card:nth-child(3n+2){border-left-color:var(--gold)}
+.card:nth-child(3n){border-left-color:#1aa37a}
+.card p{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:clamp(20px,2.4vw,26px);line-height:1.25;margin:0 0 12px}
+.card.short p{font-size:clamp(28px,3.4vw,40px)}
+.who{font-size:14px;opacity:.8}
+.who b{font-weight:600;opacity:1}
+.empty{padding:60px 24px;text-align:center;font-size:20px}
+a.join{color:var(--gold);font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <h1><small>What Ownership Means to Me</small>Wall of Pride</h1>
+  <div class="stat"><b id="count">0</b><span>messages so far &middot; <a class="join" href="index.html">add yours</a></span></div>
+</header>
+<div id="board"></div>
+<script>
+// Same Apps Script Web App URL as index.html
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxp9du-J6kvUFTIvqvGv-S1BbP9Esm4nWFhn6Ed5ImaQ6MJkVWR66y3peucuUgs-KZIOw/exec';
+const tv = new URLSearchParams(location.search).has('tv'); // wall.html?tv=1 for auto-scrolling display
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let last = '';
+async function load(){
+  try{
+    const r = await fetch(SCRIPT_URL); const d = await r.json();
+    const sig = d.items.length + '|' + (d.items[0] ? d.items[0].time : 0);
+    if (sig === last) return; last = sig;
+    $count.textContent = d.items.length;
+    $board.innerHTML = d.items.length ? d.items.map(i =>
+      `<div class="card${i.message.length < 40 ? ' short' : ''}"><p>${esc(i.message)}</p><div class="who"><b>${esc(i.name)}</b>, ${esc(i.facility)}</div></div>`
+    ).join('') : '<div class="empty">Be the first to share what ownership means to you.</div>';
+  }catch(e){}
+}
+const $count = document.getElementById('count'), $board = document.getElementById('board');
+load(); setInterval(load, 30000);
+if (tv && !matchMedia('(prefers-reduced-motion: reduce)').matches){
+  let dir = 1;
+  setInterval(() => {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    if (max <= 0) return;
+    scrollBy(0, dir);
+    if (scrollY >= max - 1) dir = -1; else if (scrollY <= 0) dir = 1;
+  }, 40);
+}
+</script>
+</body>
+</html>
