@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Ownership Means to Me</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Hind:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#0f3cc9;--ink:#14213d;--gold:#f2b705;--paper:#f5f7ff;--line:#cfd8f5}
+*{box-sizing:border-box}
+body{margin:0;font-family:Hind,system-ui,sans-serif;color:var(--ink);background:var(--paper);line-height:1.5}
+header{background:var(--blue);color:#fff;padding:36px 20px 56px}
+.wrap{max-width:640px;margin:0 auto}
+header p{margin:0 0 8px;opacity:.85;font-size:15px}
+h1{font-family:Fraunces,Georgia,serif;font-weight:800;font-size:clamp(34px,8vw,54px);line-height:1.05;margin:0}
+h1 span{color:var(--gold)}
+main{margin-top:-32px;padding:0 16px 48px}
+form{background:#fff;border:1px solid var(--line);border-radius:14px;padding:24px;box-shadow:0 10px 30px rgba(15,60,201,.10)}
+label{display:block;font-weight:600;margin:16px 0 6px}
+label:first-of-type{margin-top:0}
+input,textarea{width:100%;font:inherit;padding:12px;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+input:focus,textarea:focus,button:focus-visible{outline:3px solid var(--gold);border-color:var(--blue)}
+textarea{min-height:140px;resize:vertical}
+.count{text-align:right;font-size:13px;opacity:.7}
+button{margin-top:18px;width:100%;font:inherit;font-weight:600;font-size:17px;padding:14px;border:0;border-radius:8px;background:var(--blue);color:#fff;cursor:pointer}
+button:disabled{opacity:.6;cursor:wait}
+.note{font-size:14px;margin-top:14px;text-align:center}
+.msg{display:none;text-align:center;padding:36px 16px}
+.msg h2{font-family:Fraunces,serif;font-size:30px;margin:0 0 8px}
+a{color:var(--blue);font-weight:600}
+.deadline{background:#fff7d6;border:1px solid var(--gold);border-radius:8px;padding:10px 14px;margin-bottom:18px;font-size:15px}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<p>Employee Engagement</p>
+<h1>What <span>Ownership</span> Means to Me</h1>
+</div></header>
+<main><div class="wrap">
+<form id="f" autocomplete="off">
+  <div class="deadline" id="dl">Share your message by <b>5:00 PM, 27 October</b>. It will appear on our Wall of Pride.</div>
+  <label for="name">Employee Name</label>
+  <input id="name" required maxlength="80">
+  <label for="code">Employee Code</label>
+  <input id="code" required maxlength="20">
+  <label for="facility">Facility</label>
+  <input id="facility" required maxlength="80" placeholder="e.g. Berhampur, Jeypore, Rayagada">
+  <label for="message">What does ownership mean to me?</label>
+  <textarea id="message" required maxlength="400" placeholder="A word or a short message, in your own words"></textarea>
+  <div class="count"><span id="n">0</span>/400</div>
+  <button id="btn" type="submit">Post to the Wall of Pride</button>
+  <p class="note"><a href="wall.html">See the Wall of Pride</a></p>
+</form>
+<div class="msg" id="done"><h2>Thank you!</h2><p>Your message is on its way to the Wall of Pride.</p><p><a href="wall.html">View the Wall of Pride</a></p></div>
+<div class="msg" id="closed"><h2>Submissions are closed</h2><p>The window closed at 5:00 PM on 27 October.</p><p><a href="wall.html">View the Wall of Pride</a></p></div>
+</div></main>
+<script>
+// Paste your Apps Script Web App URL here (ends with /exec)
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxp9du-J6kvUFTIvqvGv-S1BbP9Esm4nWFhn6Ed5ImaQ6MJkVWR66y3peucuUgs-KZIOw/exec';
+const DEADLINE = new Date('2026-10-27T17:00:00+05:30');
+const $ = id => document.getElementById(id);
+function closedView(){ $('f').style.display='none'; $('closed').style.display='block'; }
+if (new Date() > DEADLINE) closedView();
+$('message').addEventListener('input', e => $('n').textContent = e.target.value.length);
+$('f').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (new Date() > DEADLINE) return closedView();
+  $('btn').disabled = true; $('btn').textContent = 'Posting...';
+  const body = new URLSearchParams({
+    name:$('name').value, code:$('code').value,
+    facility:$('facility').value, message:$('message').value
+  });
+  try {
+    await fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', body});
+    $('f').style.display='none'; $('done').style.display='block';
+  } catch (err) {
+    alert('Could not send. Please check your internet and try again.');
+    $('btn').disabled = false; $('btn').textContent = 'Post to the Wall of Pride';
+  }
+});
+</script>
+</body>
+</html>
